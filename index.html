@@ -30,8 +30,73 @@
       <h2>Here we can set and get your mood</h2>
       <label for="mood">Enter your mood:</label>
       <input type="text" id="mood" />
-      <button onclick="getMood()">Get Mood</button>
-      <button onclick="setMood()">Set Mood</button>
+      <button onclick="get_mood()">Get Mood</button>
+      <button onclick="set_mood()">Set Mood</button>
     </div>
   </body>
+  <script
+    charset="utf-8"
+    src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"
+    type="application/javascript"
+  ></script>
+
+  <script>
+    const MoodContractAddress = '0xaDF0Ba8379A1E3Dd53aDdf96E5f4F401869c57Ad';
+    const MoodContractABI = [
+      {
+        inputs: [
+          {
+            internalType: 'string',
+            name: '_mood',
+            type: 'string',
+          },
+        ],
+        name: 'set_mood',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'get_mood',
+        outputs: [
+          {
+            internalType: 'string',
+            name: '',
+            type: 'string',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+    ];
+    let MoodContract;
+    let signer;
+    const provider = new ethers.providers.Web3Provider(
+      window.ethereum,
+      'goerli'
+    );
+    provider.send('eth_requestAccounts', []).then(() => {
+      provider.listAccounts().then((accounts) => {
+        signer = provider.getSigner(accounts[0]);
+        MoodContract = new ethers.Contract(
+          MoodContractAddress,
+          MoodContractABI,
+          signer
+        );
+      });
+    });
+
+    async function get_mood() {
+      const getMoodPromise = MoodContract.get_mood();
+      const Mood = await getMoodPromise;
+      console.log(Mood);
+    }
+
+    async function set_Mood() {
+      const mood = document.getElementById('mood').value;
+      const setMoodPromise = MoodContract.set_mood(mood);
+      await setMoodPromise;
+    }
+  </script>
 </html>
